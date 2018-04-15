@@ -2,7 +2,7 @@
 #define GRAPH_H_INCLUDED
 
 #include <stdio.h>
-const int colorNum_Max = 28;
+const int colorNum_Max = 50;
 
 typedef struct arcNode{
     int name;

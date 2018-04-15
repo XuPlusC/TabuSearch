@@ -6,7 +6,7 @@ int CreateGraph(HeadNodePtr &headPtr)
 {
 	HeadNodePtr head, G;
 	int target, arc, i, length;
-    FILE *fp = fopen("arc.txt", "r");
+    FILE *fp = fopen("DSJC500.5.col", "r");
 	fscanf(fp, "%d", &length);
 
     G = (HeadNodePtr)malloc(length*sizeof(HeadNode));

@@ -51,7 +51,7 @@ void generate_ACT(HeadNodePtr G, int ACT[][colorNum_Max], int length)
 			tempPtr = tempPtr->next;
 		}
 	}
-	
+
 }
 
 void TabuSearch(HeadNodePtr &G, int length,
@@ -64,10 +64,22 @@ void TabuSearch(HeadNodePtr &G, int length,
 	printf("original f:%d\n",f);
 	min_f = f;
 
+	//4.15 update
+	int i;
+	int sol[length];
+	for(i = 0; i < length;++i)
+	{
+		sol[i] = (G+i)->color;
+	}
+
+	//end of 4.15 update
+
+
+
 	for(; f > 0; iter++)
 	{
-		FindMove(u, vi, vj, delt, f, min_f, iter, G, length, ACT, TTT);
-		MakeMove(u, vi, vj, delt, f, iter, G, length, ACT, TTT);
+		FindMove(u, vi, vj, delt, f, min_f, iter, G, sol, length, ACT, TTT);
+		MakeMove(u, vi, vj, delt, f, iter, G, sol, length, ACT, TTT);
 		//printf("iter %d: move : vex %d from color %d to %d.current f is :%d\n", iter, u, vi, vj,f);
 		if(f < min_f)
 			min_f = f;
@@ -76,14 +88,14 @@ void TabuSearch(HeadNodePtr &G, int length,
 	}
 }
 
-void FindMove(int &u, int &vi, int &vj, int &delt, int f, int min_f, int iter, HeadNodePtr &G,
+void FindMove(int &u, int &vi, int &vj, int &delt, int f, int min_f, int iter, HeadNodePtr &G, int sol[],
 	int length, int ACT[][colorNum_Max], int TTT[][colorNum_Max])
 {
 	int i, k, loc_delt;
-	
+
 	int tabu_best_u ,tabu_best_vi, tabu_best_vj, tabu_best_delt = 100000;
 	int non_t_best_u, non_t_best_vi, non_t_best_vj, non_t_best_delt = 100000;
-	
+
 
 	/*
 	int tabu_best_u = rand()%length;
@@ -96,23 +108,23 @@ void FindMove(int &u, int &vi, int &vj, int &delt, int f, int min_f, int iter, H
 	int non_t_best_vj = rand()%colorNum_Max;
 	int non_t_best_delt = ACT[non_t_best_u][non_t_best_vj]-ACT[non_t_best_u][non_t_best_vi];
 	*/
-	
+
 	u = rand()%length;
-	vi = (G+u)->color;
+	vi = sol[u];//vi = (G+u)->color;
 	vj = rand()%colorNum_Max;
 	delt = ACT[u][vj]-ACT[u][vi];
-	
+
 
 	for(i = 0; i < length; ++i)		//i refers to vex
 	{
-		if(ACT[i][(G+i)->color] > 0)		//vex i has confliction
+		if(ACT[i][sol[i]] > 0)		//vex i has confliction
 		{								//checking all critical one move of vex i
 			for(k = 0; k < colorNum_Max; ++k)	//k refers to color
 			{
-				if(k != (G+i)->color)	//move the color of vex i from original color to color k
+				if(k != sol[i])	//move the color of vex i from original color to color k
 				{
 					//calculate delt value of the move <i, Sol[i], k>
-					loc_delt = ACT[i][k]-ACT[i][(G+i)->color];
+					loc_delt = ACT[i][k]-ACT[i][sol[i]];
 
 					if(iter < TTT[i][k])
 					{
@@ -121,7 +133,7 @@ void FindMove(int &u, int &vi, int &vj, int &delt, int f, int min_f, int iter, H
 						{
 							tabu_best_delt = loc_delt;
 							tabu_best_u = i;
-							tabu_best_vi = (G+i)->color;
+							tabu_best_vi = sol[i];
 							tabu_best_vj = k;
 						}
 					}
@@ -132,7 +144,7 @@ void FindMove(int &u, int &vi, int &vj, int &delt, int f, int min_f, int iter, H
 						{
 							non_t_best_delt = loc_delt;
 							non_t_best_u = i;
-							non_t_best_vi = (G+i)->color;
+							non_t_best_vi = sol[i];
 							non_t_best_vj = k;
 						}
 					}
@@ -159,10 +171,10 @@ void FindMove(int &u, int &vi, int &vj, int &delt, int f, int min_f, int iter, H
 	}
 }
 
-void MakeMove(int u, int vi, int vj, int delt, int &f, int iter, HeadNodePtr &G,
+void MakeMove(int u, int vi, int vj, int delt, int &f, int iter, HeadNodePtr &G, int sol[],
 	int length, int ACT[][colorNum_Max], int TTT[][colorNum_Max])
 {
-	(G+u)->color = vj;
+	sol[u] = vj;
 	f = f + delt;
 	//need to srand?
 	//srand((unsigned)time(NULL));
