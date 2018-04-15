@@ -16,6 +16,11 @@ int main()
     //printf("initial ok!\n");
     int ACT[length][colorNum_Max];
     int TTT[length][colorNum_Max];
+    for(i = 0; i < length; ++i)
+    {
+        for(j = 0; j < colorNum_Max; ++j)
+            TTT[i][j] = 0;
+    }
     //generate_ACT(G, ACT, length);
     //printf("generate oK!\n");
 
@@ -34,6 +39,6 @@ int main()
             tempPtr = tempPtr->next;
         }
     }
-    printf("%d\n", sum);
+    printf("%d\n", sum/2);
     return 0;
 }

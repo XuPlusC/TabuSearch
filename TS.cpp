@@ -7,47 +7,6 @@
 extern const int colorNum_Max;
 #define MaxIter 100000000		//????
 
-/*
-int DSATUR_start(HeadNodePtr G, int length)
-{
-	HeadNodePtr search;
-	int degree_max = 0, pos_max = 0, i;
-
-	search = G;
-	for(i = 0; i < length; ++i, ++search)
-	{
-		if(search->degree > degree_max)
-		{
-			//printf("checking node No.%d whose degree is %d\n", i+1, search->degree);
-			pos_max = i;
-			degree_max = search->degree;
-		}
-	}
-	printf("max is %d with degree %d\n", pos_max, degree_max);
-
-	return pos_max;
-}
-*/
-/*
-int degs(HeadNodePtr G, int vertex, int colorNum_Max)
-{
-	int colorMark[colorNum_Max] = {0};
-	int occupy = 0, i;
-	ArcNodePtr tempPtr = (G+vertex)->arc;
-	while(tempPtr != NULL)
-	{
-		colorMark[tempPtr->name] = 1;
-		tempPtr = tempPtr->next;
-	}
-	for(i = 0; i < colorNum_Max; ++i)
-	{
-		if(colorMark[i] == 1)
-			occupy++;
-	}
-	return occupy;
-}
-*/
-
 void random_init(HeadNodePtr &G, int length)
 {
 	srand((unsigned)time(NULL));
@@ -62,10 +21,12 @@ void generate_ACT(HeadNodePtr G, int ACT[][colorNum_Max], int length)
 {
 	int i, j, colorMark[colorNum_Max] = {0};
 	ArcNodePtr tempPtr;
+	/*
 	for(i = 0; i < length; ++i)
 	{
 		for(j = 0; j < colorNum_Max; ++j)
 			colorMark[j] = 0;
+
 		tempPtr = (G+i)->arc;
 		while(tempPtr != NULL)
 		{
@@ -75,6 +36,22 @@ void generate_ACT(HeadNodePtr G, int ACT[][colorNum_Max], int length)
 		for(j = 0; j < colorNum_Max; ++j)
 			ACT[i][j] = colorMark[j];
 	}
+	*/
+	for(i = 0; i < length; ++i)
+	{
+		for(j = 0; j < colorNum_Max; ++j)
+			ACT[i][j] = 0;
+	}
+	for(i = 0; i < length; ++i)
+	{
+		tempPtr = (G+i)->arc;
+		while(tempPtr != NULL)
+		{
+			ACT[i][(G+tempPtr->name)->color] += 1;
+			tempPtr = tempPtr->next;
+		}
+	}
+	
 }
 
 void TabuSearch(HeadNodePtr &G, int length,
@@ -84,19 +61,18 @@ void TabuSearch(HeadNodePtr &G, int length,
 	random_init(G, length);
 	generate_ACT(G, ACT, length);
 	int f = calculate_F(G, length);
+	printf("original f:%d\n",f);
 	min_f = f;
 
-	while(iter++)
+	for(; f > 0; iter++)
 	{
 		FindMove(u, vi, vj, delt, f, min_f, iter, G, length, ACT, TTT);
 		MakeMove(u, vi, vj, delt, f, iter, G, length, ACT, TTT);
 		//printf("iter %d: move : vex %d from color %d to %d.current f is :%d\n", iter, u, vi, vj,f);
-		if(f <= 0)
-			break;
 		if(f < min_f)
 			min_f = f;
-        //if(iter % 5000 == 0)
-        //    printf("f now :%d\n", f);
+        //if(iter % 10000 == 0)
+         //  printf("f now :%d\n", f);
 	}
 }
 
@@ -104,6 +80,12 @@ void FindMove(int &u, int &vi, int &vj, int &delt, int f, int min_f, int iter, H
 	int length, int ACT[][colorNum_Max], int TTT[][colorNum_Max])
 {
 	int i, k, loc_delt;
+	
+	int tabu_best_u ,tabu_best_vi, tabu_best_vj, tabu_best_delt = 100000;
+	int non_t_best_u, non_t_best_vi, non_t_best_vj, non_t_best_delt = 100000;
+	
+
+	/*
 	int tabu_best_u = rand()%length;
 	int tabu_best_vi = (G+tabu_best_u)->color;
 	int tabu_best_vj = rand()%colorNum_Max;
@@ -113,12 +95,14 @@ void FindMove(int &u, int &vi, int &vj, int &delt, int f, int min_f, int iter, H
 	int non_t_best_vi = (G+non_t_best_u)->color;
 	int non_t_best_vj = rand()%colorNum_Max;
 	int non_t_best_delt = ACT[non_t_best_u][non_t_best_vj]-ACT[non_t_best_u][non_t_best_vi];
-	/*
+	*/
+	
 	u = rand()%length;
 	vi = (G+u)->color;
 	vj = rand()%colorNum_Max;
 	delt = ACT[u][vj]-ACT[u][vi];
-	*/
+	
+
 	for(i = 0; i < length; ++i)		//i refers to vex
 	{
 		if(ACT[i][(G+i)->color] > 0)		//vex i has confliction
@@ -209,5 +193,6 @@ int calculate_F(HeadNodePtr G, int length)
 			tempPtr = tempPtr->next;
 		}
 	}
-	return sum/2;
+	sum /= 2;
+	return sum;
 }

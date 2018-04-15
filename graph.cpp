@@ -11,7 +11,7 @@ int CreateGraph(HeadNodePtr &headPtr)
 
     G = (HeadNodePtr)malloc(length*sizeof(HeadNode));
     head = G;
-    
+
     for(i = 0; i < length; ++i)
     {
     	(G+i)->degree = 0;
@@ -23,7 +23,6 @@ int CreateGraph(HeadNodePtr &headPtr)
     {
         fscanf(fp, "%d%d", &target, &arc);
         InsertArc(head, target-1, arc-1);
-        InsertArc(head, arc-1, target-1);
         //printf("arc added! %d--%d\n", target, arc);
     }
 
