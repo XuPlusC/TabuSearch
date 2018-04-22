@@ -96,6 +96,7 @@ void FindMove(int &u, int &vi, int &vj, int &delt, int f, int min_f, int iter, H
 	int tabu_best_u ,tabu_best_vi, tabu_best_vj, tabu_best_delt = 100000;
 	int non_t_best_u, non_t_best_vi, non_t_best_vj, non_t_best_delt = 100000;
 
+	int count_tabu = 0, count_non_t = 0;
 
 	/*
 	int tabu_best_u = rand()%length;
@@ -109,10 +110,12 @@ void FindMove(int &u, int &vi, int &vj, int &delt, int f, int min_f, int iter, H
 	int non_t_best_delt = ACT[non_t_best_u][non_t_best_vj]-ACT[non_t_best_u][non_t_best_vi];
 	*/
 
+	/*
 	u = rand()%length;
 	vi = sol[u];//vi = (G+u)->color;
 	vj = rand()%colorNum_Max;
 	delt = ACT[u][vj]-ACT[u][vi];
+	*/int mark = 0;
 
 
 	for(i = 0; i < length; ++i)		//i refers to vex
@@ -136,16 +139,39 @@ void FindMove(int &u, int &vi, int &vj, int &delt, int f, int min_f, int iter, H
 							tabu_best_vi = sol[i];
 							tabu_best_vj = k;
 						}
+						else if(loc_delt == tabu_best_delt)	//
+						{
+							count_tabu++;
+							if(rand()%count_tabu == 0)
+							{
+								tabu_best_delt = loc_delt;
+								tabu_best_u = i;
+								tabu_best_vi = sol[i];
+								tabu_best_vj = k;
+							}
+						}
 					}
 					else
 					{
 						//update non-tabu best move
 						if(loc_delt < non_t_best_delt)
 						{
+							mark = 1;
 							non_t_best_delt = loc_delt;
 							non_t_best_u = i;
 							non_t_best_vi = sol[i];
 							non_t_best_vj = k;
+						}
+						else if(loc_delt == non_t_best_delt)
+						{
+							count_non_t++;
+							if(rand()%count_non_t == 0)
+							{
+								non_t_best_delt = loc_delt;
+								non_t_best_u = i;
+								non_t_best_vi = sol[i];
+								non_t_best_vj = k;
+							}
 						}
 					}
 				}
@@ -160,6 +186,13 @@ void FindMove(int &u, int &vi, int &vj, int &delt, int f, int min_f, int iter, H
 		vj = tabu_best_vj;
 		delt = tabu_best_delt;
 		//printf("current min_f is %d, but tabu can be %d\n", min_f, f+tabu_best_delt);
+	}
+	else if(!mark)
+	{
+		u = rand()%length;
+		vi = sol[u];//vi = (G+u)->color;
+		vj = rand()%colorNum_Max;
+		delt = ACT[u][vj]-ACT[u][vi];
 	}
 	else
 	{
